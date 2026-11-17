@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f5f1">
+<title>Multiplicadora de Vídeos</title>
+<style>
+:root{--bg:#f7f5f1;--card:#fff;--ink:#262522;--muted:#77746e;--line:#e9e5de;--accent:#6255c7;--accent2:#eeeaff;--green:#217a56;--red:#a44747}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{padding:28px 18px 18px;max-width:1050px;margin:auto}h1{font-size:clamp(25px,5vw,36px);margin:0 0 6px;letter-spacing:-.7px}h2{font-size:21px;margin:0 0 8px}h3{font-size:16px;margin:0 0 10px}.sub{color:var(--muted);margin:0}
+nav{display:flex;gap:8px;max-width:1050px;margin:0 auto;padding:0 18px 18px;flex-wrap:wrap}.tab{border:1px solid var(--line);background:#fff;padding:11px 15px;border-radius:12px;font-weight:650;color:var(--muted)}.tab.active{background:var(--accent);border-color:var(--accent);color:white}
+main{max-width:1050px;margin:auto;padding:0 18px 60px}.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;margin:0 0 15px;box-shadow:0 2px 10px #29251b08}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.group{border:1px solid var(--line);border-radius:14px;padding:14px}.group.g{border-top:4px solid #8b80df}.group.d{border-top:4px solid #66a88b}.group.c{border-top:4px solid #d39a5b}
+.slot{padding:10px 0;border-bottom:1px solid var(--line)}.slot:last-child{border:0}.slot label{display:block;font-weight:650;margin-bottom:5px}.slot input{width:100%;font-size:13px}
+input[type=file],input[type=text]{width:100%;border:1px solid #dcd7cf;border-radius:9px;padding:10px;background:#fff;color:var(--ink)}input[type=file]{font-size:12px}
+.preview{display:flex;align-items:center;gap:8px;margin-top:7px;color:var(--muted);font-size:12px;min-height:18px;overflow-wrap:anywhere}.preview video{width:100px;max-height:62px;border-radius:7px;background:#111}
+button{border:0;border-radius:11px;padding:12px 16px;background:var(--accent);color:white;font-weight:700;font-size:14px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#efede8;color:#383630}.danger{background:#f8e9e9;color:var(--red)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px}.notice{background:#f3f0ff;border:1px solid #e2dcff;color:#484078;border-radius:12px;padding:12px 14px;font-size:13px}.warning{background:#fff7e9;border-color:#f1dfbd;color:#76541d}.muted{color:var(--muted);font-size:13px}.progress{height:10px;border-radius:20px;background:#eeece7;overflow:hidden;margin:12px 0}.bar{height:100%;width:0;background:var(--accent);transition:width .2s}.status{font-size:13px;color:var(--muted);min-height:20px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:#f8f7f4;border-radius:12px;padding:12px}.stat b{font-size:23px;display:block}.hook{margin-bottom:13px}.hookhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}.hookhead h3{margin:0}.count{font-size:12px;color:var(--muted);font-weight:650}.combos{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}.combo{display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:start;border:1px solid var(--line);border-radius:11px;padding:9px}.combo input[type=checkbox]{width:19px;height:19px;accent-color:var(--green);margin:2px 0}.combo strong{font-size:13px;display:block}.combo input[type=text]{margin-top:6px;padding:8px;font-size:13px}.combo.done{background:#f0f8f3;border-color:#cde5d5}.footer{font-size:12px;color:var(--muted);margin-top:16px}
+@media(max-width:560px){header{padding-top:20px}.card{padding:14px}.stats{grid-template-columns:1fr 1fr}.combo{grid-template-columns:22px 1fr}}
+</style>
+</head>
+<body>
+<header><h1>Multiplicadora de Vídeos</h1><p class="sub">Monte 64 variações com seus clipes e acompanhe as publicações.</p></header>
+<nav><button class="tab active" data-tab="montador">1 · Montador</button><button class="tab" data-tab="controle">2 · Publicações</button></nav>
+<main>
+<section id="montador" class="panel active">
+ <div class="card">
+  <h2>Selecione seus 12 clipes</h2>
+  <p class="muted">Escolha um arquivo MP4 em cada campo. Os vídeos ficam no seu dispositivo; não são enviados para um servidor.</p>
+  <div class="grid" id="slots"></div>
+  <div class="actions"><button id="generate" disabled>GERAR 64 VÍDEOS</button><button class="secondary" id="clearFiles">Limpar seleções</button></div>
+  <p class="footer">Dica: use clipes com a mesma resolução, orientação, taxa de quadros e parâmetros de áudio para permitir a junção sem recodificação.</p>
+ </div>
+ <div class="card">
+  <h2>Processamento</h2>
+  <div class="notice warning">A primeira utilização precisa baixar o mecanismo FFmpeg e o compactador JSZip de seus distribuidores públicos. Depois, o processamento é feito localmente. Mantenha esta página aberta e o iPad conectado à energia. Vídeos 4K longos ou 64 arquivos grandes podem exceder a memória disponível no Safari.</div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="status" id="status" aria-live="polite">Aguardando os 12 vídeos.</div>
+  <div class="actions"><button id="downloadZip" disabled>Baixar ZIP com os vídeos</button></div>
+  <div id="individual" class="muted"></div>
+ </div>
+</section>
+<section id="controle" class="panel">
+ <div class="card">
+  <h2>Controle de publicações</h2>
+  <p class="muted">Marque cada combinação quando publicar. Os títulos são apenas anotações e não entram nos vídeos.</p>
+  <div class="stats">
+   <div class="stat"><span class="muted">Publicados</span><b id="total">0/64</b></div>
+   <div class="stat"><span class="muted">Pendentes</span><b id="pending">64</b></div>
+   <div class="stat"><span class="muted">Progresso</span><b id="percent">0%</b></div>
+  </div>
+  <div class="actions"><button id="exportCsv">Exportar controle CSV</button><button id="exportTxt" class="secondary">Exportar TXT</button></div>
+ </div>
+ <div id="hooks"></div>
+ <div class="card footer">Seus checkboxes e títulos são salvos no armazenamento local deste navegador. Se limpar os dados/histórico do Safari, poderá perder as anotações. Não há sincronização automática entre dispositivos; exporte uma cópia CSV ou TXT regularmente.</div>
+</section>
+</main>
+<script type="module">
+const $=s=>document.querySelector(s);
+const slotNames=[...Array(4)].map((_,i)=>({key:`G${i+1}`,label:`Gancho ${i+1}`,type:'g'}))
+ .concat([...Array(4)].map((_,i)=>({key:`D${i+1}`,label:`Desenvolvimento ${i+1}`,type:'d'})))
+ .concat([...Array(4)].map((_,i)=>({key:`C${i+1}`,label:`CTA ${i+1}`,type:'c'})));
+const selected={}; let outputs=[]; let ffmpeg=null; let zipLib=null; let busy=false;
+const STORAGE='multiplicadora_publicacoes_v1';
+let records={};
+try{records=JSON.parse(localStorage.getItem(STORAGE)||'{}')||{}}catch{records={}}
+const combos=[];
+for(let g=1;g<=4;g++)for(let d=1;d<=4;d++)for(let c=1;c<=4;c++)combos.push({id:`G${g}_D${d}_C${c}`,g,d,c});
+function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(records))}catch{setStatus('Não foi possível salvar no armazenamento local. Exporte seu controle CSV/TXT.');}}
+function setStatus(s){$('#status').textContent=s}
+function renderSlots(){
+ const root=$('#slots');root.innerHTML='';
+ for(const s of slotNames){
+  const div=document.createElement('div');div.className=`group ${s.type}`;
+  div.innerHTML=`<div class="slot"><label for="file-${s.key}">${s.label}</label><input id="file-${s.key}" type="file" accept="video/mp4,.mp4"><div class="preview" id="prev-${s.key}">Nenhum arquivo selecionado</div></div>`;
+  root.append(div);
+  div.querySelector('input').addEventListener('change',e=>{
+   const f=e.target.files?.[0]; if(!f){delete selected[s.key];}
+   else if(!(f.type==='video/mp4'||f.name.toLowerCase().endsWith('.mp4'))){alert('Selecione um arquivo MP4.');e.target.value='';delete selected[s.key];}
+   else{selected[s.key]=f;$('#prev-'+s.key).textContent=`${f.name} · ${(f.size/1024/1024).toFixed(1)} MB`;}
+   updateGenerate();
+  });
+ }
+}
+function updateGenerate(){$('#generate').disabled=busy||slotNames.some(s=>!selected[s.key]);}
+$('#clearFiles').onclick=()=>{if(busy)return;for(const s of slotNames){delete selected[s.key];const el=$('#file-'+s.key);if(el)el.value='';$('#prev-'+s.key).textContent='Nenhum arquivo selecionado'}updateGenerate();};
+function renderControl(){
+ const root=$('#hooks');root.innerHTML='';
+ for(let g=1;g<=4;g++){
+  const section=document.createElement('div');section.className='card hook';
+  const items=combos.filter(x=>x.g===g);
+  const done=items.filter(x=>records[x.id]?.done).length;
+  section.innerHTML=`<div class="hookhead"><h3>GANCHO ${g}</h3><span class="count" id="count-g${g}">${done}/16 publicados</span></div><div class="combos"></div>`;
+  const list=section.querySelector('.combos');
+  for(const x of items){
+   const r=records[x.id]||{done:false,title:''};
+   const item=document.createElement('div');item.className='combo'+(r.done?' done':'');
+   item.innerHTML=`<input type="checkbox" aria-label="Marcar ${x.id} como publicado" ${r.done?'checked':''}><div><strong>G${g} + D${x.d} + C${x.c}</strong><input type="text" maxlength="180" placeholder="Título / gancho escrito (opcional)" aria-label="Título para ${x.id}"></div>`;
+   const cb=item.querySelector('input[type=checkbox]'), title=item.querySelector('input[type=text]');
+   title.value=r.title||'';
+   cb.addEventListener('change',()=>{records[x.id]={done:cb.checked,title:title.value};item.classList.toggle('done',cb.checked);persist();updateCounts();});
+   title.addEventListener('input',()=>{records[x.id]={done:cb.checked,title:title.value};persist();});
+   list.append(item);
+  }
+  root.append(section);
+ }
+ updateCounts();
+}
+function updateCounts(){
+ let total=0;
+ for(let g=1;g<=4;g++){const n=combos.filter(x=>x.g===g&&records[x.id]?.done).length;total+=n;const el=$(`#count-g${g}`);if(el)el.textContent=`${n}/16 publicados`;}
+ $('#total').textContent=`${total}/64`;$('#pending').textContent=64-total;$('#percent').textContent=`${Math.round(total/64*100)}%`;
+}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+function csvCell(v){return '"'+String(v??'').replaceAll('"','""')+'"';}
+function exportData(ext){
+ const rows=[['combinação','publicado','título']];
+ for(const x of combos){const r=records[x.id]||{};rows.push([x.id,r.done?'Sim':'Não',r.title||'']);}
+ const text=rows.map(row=>row.map(csvCell).join(ext==='csv'?';':' | ')).join('\r\n');
+ downloadBlob(new Blob(['\ufeff'+text],{type:ext==='csv'?'text/csv;charset=utf-8':'text/plain;charset=utf-8'}),`controle-publicacoes.${ext}`);
+}
+$('#exportCsv').onclick=()=>exportData('csv');$('#exportTxt').onclick=()=>exportData('txt');
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active');}));
+async function loadEngines(){
+ if(ffmpeg&&zipLib)return;
+ setStatus('Carregando bibliotecas gratuitas… é necessária conexão com a internet na primeira vez.');
+ const [{FFmpeg},{toBlobURL},JSZipModule]=await Promise.all([
+  import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js'),
+  import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/esm/index.js'),
+  import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm')
+ ]);
+ zipLib=JSZipModule.default||JSZipModule;
+ ffmpeg=new FFmpeg();
+ ffmpeg.on('log',({message})=>{if(/error/i.test(message))setStatus(message.slice(0,180));});
+ const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
+ const coreURL=await toBlobURL(`${base}/ffmpeg-core.js`,'text/javascript');
+ const wasmURL=await toBlobURL(`${base}/ffmpeg-core.wasm`,'application/wasm');
+ await ffmpeg.load({coreURL,wasmURL});
+}
+$('#generate').onclick=async()=>{
+ if(busy)return;busy=true;updateGenerate();$('#downloadZip').disabled=true;$('#individual').innerHTML='';outputs=[];
+ const btn=$('#generate');btn.textContent='PROCESSANDO…';
+ let zip;
+ try{
+  await loadEngines();zip=new zipLib();
+  setStatus('Preparando os 12 arquivos…');
+  for(const s of slotNames){const name=`${s.key}.mp4`;await ffmpeg.writeFile(name,new Uint8Array(await selected[s.key].arrayBuffer()));}
+  for(let i=0;i<combos.length;i++){
+   const x=combos[i],id=x.id,files=[`G${x.g}.mp4`,`D${x.d}.mp4`,`C${x.c}.mp4`];
+   const list=files.map(f=>`file '${f}'`).join('\n');
+   await ffmpeg.writeFile('lista.txt',new TextEncoder().encode(list));
+   const out=`${id}.mp4`;
+   setStatus(`Montando ${i+1}/64: ${id}…`);
+   let result=await ffmpeg.exec(['-f','concat','-safe','0','-i','lista.txt','-c','copy',out]);
+   if(result!==0){
+    try{await ffmpeg.deleteFile(out)}catch{}
+    setStatus(`Compatibilizando áudio/vídeo de ${id} (${i+1}/64)…`);
+    result=await ffmpeg.exec(['-f','concat','-safe','0','-i','lista.txt','-c:v','libx264','-preset','veryfast','-crf','18','-c:a','aac','-b:a','192k','-movflags','+faststart',out]);
+   }
+   if(result!==0)throw new Error(`Não foi possível montar ${id}. Verifique se os clipes têm áudio/vídeo compatíveis e estão íntegros.`);
+   const data=await ffmpeg.readFile(out);const blob=new Blob([data],{type:'video/mp4'});
+   zip.file(out,blob);outputs.push({name:out,blob});
+   await ffmpeg.deleteFile(out);await ffmpeg.deleteFile('lista.txt');
+   $('#bar').style.width=`${Math.round((i+1)/64*100)}%`;
+  }
+  setStatus('Criando arquivo ZIP… mantenha a página aberta.');
+  const blob=await zip.generateAsync({type:'blob',compression:'STORE'},meta=>{if(meta.percent)$('#bar').style.width=`${Math.max(0,Math.min(100,meta.percent))}%`;});
+  downloadBlob(blob,'64-combinacoes-videos.zip');
+  $('#downloadZip').disabled=false;setStatus('Concluído! Os 64 vídeos foram montados e o download do ZIP foi iniciado.');
+  const links=$('#individual');links.innerHTML='<p><b>Downloads individuais:</b></p>';
+  for(const o of outputs){const a=document.createElement('a');a.href=URL.createObjectURL(o.blob);a.download=o.name;a.textContent=o.name;a.style.cssText='display:inline-block;margin:4px 10px 4px 0;color:#6255c7';links.append(a);}
+ }catch(err){console.error(err);setStatus('Erro: '+(err?.message||String(err))+' Você pode tentar novamente com clipes menores ou em resolução menor.');alert('A montagem não foi concluída: '+(err?.message||String(err)));}
+ finally{busy=false;btn.textContent='GERAR 64 VÍDEOS';updateGenerate();}
+};
+$('#downloadZip').onclick=()=>{if(!outputs.length)return;setStatus('Preparando novamente o ZIP…');const z=new zipLib();for(const o of outputs)z.file(o.name,o.blob);z.generateAsync({type:'blob',compression:'STORE'}).then(b=>downloadBlob(b,'64-combinacoes-videos.zip')).catch(e=>setStatus('Falha ao criar ZIP: '+e.message));};
+renderSlots();renderControl();
+</script>
+</body></html>
